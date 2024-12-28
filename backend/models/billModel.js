@@ -7,4 +7,6 @@ const billSchema = new mongoose.Schema({
   date: { type: Date, required: true },
 });
 
-module.exports = mongoose.model("Bill", billSchema);
+const Bill = mongoose.model("Bill", billSchema);
+
+module.exports = Bill;

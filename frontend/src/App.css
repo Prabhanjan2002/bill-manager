@@ -83,3 +83,9 @@ footer {
   background-color: #495057;
   color: #ffffff;
 }
+
+.card:hover {
+  transform: scale(1.02);
+  box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.2);
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}

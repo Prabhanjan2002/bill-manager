@@ -34,9 +34,10 @@ const BillList = ({ bills, highlightedBills, showHighlightedBills }) => {
 
   return (
     <div>
-      <h3 className="text-center mb-4">Bill List</h3>
+      <h3 className="text-center mb-4">Add New Bill</h3>
 
-      {/* Form to add a new bill */}
+      {/* add new bill */}
+
       <form onSubmit={handleSubmit} className="mb-4">
         <input
           type="text"
@@ -75,6 +76,7 @@ const BillList = ({ bills, highlightedBills, showHighlightedBills }) => {
         </button>
       </form>
 
+      <h3 className="text-center mb-4">Bill List</h3>
       {/* Existing Bill List */}
       <div className="row">
         {bills.map((bill) => {

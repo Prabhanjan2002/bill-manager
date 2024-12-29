@@ -82,7 +82,7 @@ const App = () => {
       </button>
 
       {/* Bill Form to add new bills */}
-      <BillForm addBill={addBill} />
+      {/* <BillForm addBill={addBill} /> */}
 
       {/* Bill List with highlighted bills */}
       <BillList

@@ -35,10 +35,12 @@ const BillList = ({
   };
 
   return (
-    <div className="container py-4">
-      {/* Add New Bill Form */}
-      <div className="card mb-4 shadow-lg">
-        <div className="card-header bg-dark text-white">
+    <div className="container-fluid py-4">
+      <div
+        className="card mb-4 shadow-lg mx-auto"
+        style={{ maxWidth: "800px" }}
+      >
+        <div className="card-header bg-dark text-white text-center">
           <h5 className="mb-0">Add New Bill</h5>
         </div>
         <div className="card-body">
@@ -109,43 +111,38 @@ const BillList = ({
         </div>
       </div>
 
-      {/* Bill List */}
       <h3 className="text-center text-white mb-4">Bill List</h3>
-      <div
-        className={`row g-4 ${
-          bills.length === 1 ? "justify-content-center" : ""
-        }`}
-      >
+      <div className="row g-4 justify-content-center">
         {bills.map((bill) => {
           const isHighlighted = highlightedBills.some(
             (highlightedBill) => highlightedBill._id === bill._id
           );
 
           return (
-            <div
-              key={bill._id}
-              className={`col-12 ${
-                bills.length === 1 ? "w-50" : "col-sm-6 col-md-4 col-lg-3"
-              }`}
-            >
+            <div key={bill._id} className="col-6 d-flex">
               <div
-                className={`card h-100 shadow ${
-                  isHighlighted && showHighlightedBills
-                    ? "bg-success text-white"
-                    : "bg-light text-dark"
-                }`}
+                className={`card shadow-lg mx-auto w-100`}
+                style={{
+                  maxWidth: "400px",
+                  backgroundColor:
+                    isHighlighted && showHighlightedBills
+                      ? "#198754"
+                      : "#f8f9fa",
+                  color:
+                    isHighlighted && showHighlightedBills ? "#fff" : "#000",
+                }}
               >
                 <div className="card-body d-flex flex-column">
                   <h5 className="card-title text-truncate">
                     {bill.description}
                   </h5>
-                  <p className="card-text mb-1">
+                  <p className="card-text">
                     <strong>Category:</strong> {bill.category}
                   </p>
-                  <p className="card-text mb-1">
+                  <p className="card-text">
                     <strong>Amount:</strong> ₹{bill.amount}
                   </p>
-                  <p className="card-text mb-3">
+                  <p className="card-text">
                     <strong>Date:</strong>{" "}
                     {new Date(bill.date).toLocaleDateString()}
                   </p>

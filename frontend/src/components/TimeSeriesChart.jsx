@@ -26,41 +26,55 @@ const TimeSeriesChart = ({ bills }) => {
   const [chartData, setChartData] = useState({ labels: [], data: [] });
 
   useEffect(() => {
+    console.log("Bills passed to TimeSeriesChart:", bills);
+
     // Process bills into time-series format
     const processData = () => {
       const monthlyData = {};
 
-      // Iterate over bills and categorize by month and year
       bills.forEach((bill) => {
-        const date = new Date(bill.date);
-        const monthYear = `${date.getMonth() + 1}-${date.getFullYear()}`; // Format: MM-YYYY
-        if (!monthlyData[monthYear]) {
-          monthlyData[monthYear] = 0;
+        if (bill.date && bill.amount) {
+          const date = new Date(bill.date);
+          if (!isNaN(date)) {
+            const monthYear = `${date.getMonth() + 1}-${date.getFullYear()}`; // Format: MM-YYYY
+            if (!monthlyData[monthYear]) {
+              monthlyData[monthYear] = 0;
+            }
+            monthlyData[monthYear] += parseFloat(bill.amount); // Accumulate the amount for the same month
+          } else {
+            console.warn("Invalid date format in bill:", bill);
+          }
+        } else {
+          console.warn("Invalid bill data:", bill);
         }
-        monthlyData[monthYear] += parseFloat(bill.amount); // Accumulate the amount for the same month
       });
 
       // Sort months and prepare data for the chart
       const labels = Object.keys(monthlyData).sort();
       const data = labels.map((label) => monthlyData[label]);
 
+      console.log("Processed chart data:", { labels, data });
+
       return { labels, data };
     };
 
-    if (bills.length > 0) {
+    if (bills && bills.length > 0) {
       const { labels, data } = processData();
       setChartData({ labels, data });
     } else {
-      console.log("No bills data available for charting.");
+      setChartData({ labels: [], data: [] });
+      console.warn("No bills data available for charting.");
     }
-  }, [bills]); // Only reprocess data when bills change
+  }, [bills]); // Re-run when `bills` changes
 
-  // If no valid data is available
   if (chartData.labels.length === 0 || chartData.data.length === 0) {
-    return <p>No data available to display the chart.</p>;
+    return (
+      <div className="alert alert-warning text-center">
+        No data available to display the chart.
+      </div>
+    );
   }
 
-  // Chart.js data configuration
   const chartOptions = {
     responsive: true,
     plugins: {
@@ -71,7 +85,6 @@ const TimeSeriesChart = ({ bills }) => {
     },
   };
 
-  // Chart.js dataset
   const chartDataset = {
     labels: chartData.labels,
     datasets: [

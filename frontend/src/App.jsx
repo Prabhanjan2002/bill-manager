@@ -1,26 +1,30 @@
 import React, { useState, useEffect } from "react";
 import BillList from "./components/BillList";
 import CategoryFilter from "./components/CatagoryFilter";
-import TimeSeriesChart from "./components/TimeSeriesChart"; // Import the Time-Series Chart
-import EditBillModal from "./components/EditBillModel"; // Modal for editing bills
-import { calculateMinimumBills } from "./utils/billUtils"; // Import the utility function
+import TimeSeriesChart from "./components/TimeSeriesChart";
+import EditBillModal from "./components/EditBillModel";
+import { calculateMinimumBills } from "./utils/billUtils";
+import "./App.css"; // Custom CSS for dark theme
 
 const App = () => {
   const [bills, setBills] = useState([]);
   const [filteredBills, setFilteredBills] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState("");
-  const [monthlyBudget, setMonthlyBudget] = useState(50000); // Sample monthly budget for Level 2
+  const [monthlyBudget, setMonthlyBudget] = useState(50000);
   const [highlightedBills, setHighlightedBills] = useState([]);
-  const [showHighlightedBills, setShowHighlightedBills] = useState(false); // Flag to toggle highlighted bills
-  const [billToEdit, setBillToEdit] = useState(null); // Bill being edited
+  const [showHighlightedBills, setShowHighlightedBills] = useState(false);
+  const [billToEdit, setBillToEdit] = useState(null);
 
   useEffect(() => {
     const fetchBills = async () => {
       try {
         const response = await fetch("http://localhost:5000/api/bills");
         const data = await response.json();
-        setBills(data);
-        setFilteredBills(data); // Initially showing all bills
+        const validBills = data.filter(
+          (bill) => bill.date && bill.amount && !isNaN(bill.amount)
+        );
+        setBills(validBills);
+        setFilteredBills(validBills);
       } catch (error) {
         console.error("Error fetching bills:", error);
       }
@@ -32,7 +36,7 @@ const App = () => {
   const handleCategoryFilterChange = (category) => {
     setSelectedCategory(category);
     if (category === "") {
-      setFilteredBills(bills); // Show all bills if no category is selected
+      setFilteredBills(bills);
     } else {
       const filtered = bills.filter((bill) => bill.category === category);
       setFilteredBills(filtered);
@@ -42,7 +46,7 @@ const App = () => {
   const addBill = (newBill) => {
     setBills((prevBills) => {
       const updatedBills = [...prevBills, newBill];
-      setFilteredBills(updatedBills); // Ensure filteredBills is also updated
+      setFilteredBills(updatedBills);
       return updatedBills;
     });
   };
@@ -50,17 +54,14 @@ const App = () => {
   const calculateBillsToPay = () => {
     const result = calculateMinimumBills(bills, monthlyBudget);
     setHighlightedBills(result);
-    setShowHighlightedBills(true); // Show the highlighted bills after calculation
+    setShowHighlightedBills(true);
   };
 
-  // Delete a bill
   const deleteBill = async (billId) => {
     try {
       const response = await fetch(
         `http://localhost:5000/api/bills/${billId}`,
-        {
-          method: "DELETE",
-        }
+        { method: "DELETE" }
       );
 
       if (!response.ok) {
@@ -73,16 +74,13 @@ const App = () => {
       );
     } catch (error) {
       console.error("Error deleting bill:", error);
-      alert("Failed to delete the bill. Please try again later.");
     }
   };
 
-  // Open modal for editing a bill
   const openEditModal = (bill) => {
     setBillToEdit(bill);
   };
 
-  // Edit a bill
   const editBill = async (updatedBill) => {
     try {
       const response = await fetch(
@@ -107,53 +105,82 @@ const App = () => {
         prevFiltered.map((bill) => (bill._id === updatedBill._id ? data : bill))
       );
 
-      setBillToEdit(null); // Close the modal after saving
+      setBillToEdit(null);
     } catch (error) {
       console.error("Error editing bill:", error);
-      alert("Failed to edit the bill. Please try again later.");
     }
   };
 
   return (
-    <div className="container mt-5">
-      <h1 className="text-center mb-4">Bill Manager</h1>
+    <div className="app-container">
+      {/* Header */}
+      <header className="bg-dark text-light text-center py-4 rounded shadow mb-4">
+        <h1 className="display-4">Bill Manager</h1>
+        <p className="lead">
+          Track, analyze, and manage your expenses effortlessly.
+        </p>
+      </header>
 
-      {/* Category Filter */}
-      <div className="mb-4">
-        <CategoryFilter
-          selectedCategory={selectedCategory}
-          onCategoryChange={handleCategoryFilterChange}
-        />
+      {/* Main Content */}
+      <div className="row g-4">
+        {/* Left Section: Filters and Budget */}
+        <div className="col-lg-4">
+          {/* Filter by Category */}
+          <div className="card shadow-sm bg-secondary text-light border-0">
+            <div className="card-body">
+              <h5 className="card-title">Filter by Category</h5>
+              <CategoryFilter
+                selectedCategory={selectedCategory}
+                onCategoryChange={handleCategoryFilterChange}
+              />
+            </div>
+          </div>
+
+          {/* Set Monthly Budget */}
+          <div className="card shadow-sm bg-info text-dark mt-4 border-0">
+            <div className="card-body">
+              <h5 className="card-title">Set Monthly Budget</h5>
+              <input
+                type="number"
+                className="form-control mb-3"
+                value={monthlyBudget}
+                onChange={(e) => setMonthlyBudget(e.target.value)}
+              />
+              <button
+                className="btn btn-dark w-100"
+                onClick={calculateBillsToPay}
+              >
+                Calculate Bills to Pay
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Right Section: Bills and Chart */}
+        <div className="col-lg-8">
+          {/* Bills List */}
+          <div className="card shadow-sm bg-light text-dark border-0 mb-4">
+            <div className="card-body">
+              <h5 className="card-title">Bills List</h5>
+              <BillList
+                bills={filteredBills}
+                highlightedBills={highlightedBills}
+                showHighlightedBills={showHighlightedBills}
+                onDelete={deleteBill}
+                onEdit={openEditModal}
+              />
+            </div>
+          </div>
+
+          {/* Time-Series Chart */}
+          <div className="card shadow-sm bg-dark text-light border-0">
+            <div className="card-body">
+              <h5 className="card-title">Bills Overview (Time-Series)</h5>
+              <TimeSeriesChart bills={filteredBills} />
+            </div>
+          </div>
+        </div>
       </div>
-
-      {/* Input for Monthly Budget */}
-      <div className="form-group mb-4">
-        <label htmlFor="budget">Set Monthly Budget: </label>
-        <input
-          id="budget"
-          type="number"
-          className="form-control"
-          value={monthlyBudget}
-          onChange={(e) => setMonthlyBudget(e.target.value)}
-        />
-      </div>
-
-      {/* Button to calculate minimum bills to pay */}
-      <button className="btn btn-primary mb-4" onClick={calculateBillsToPay}>
-        Calculate Minimum Bills to Pay
-      </button>
-
-      {/* Bill List with highlighted bills */}
-      <BillList
-        bills={filteredBills}
-        highlightedBills={highlightedBills}
-        showHighlightedBills={showHighlightedBills}
-        onDelete={deleteBill}
-        onEdit={openEditModal}
-      />
-
-      {/* Time-Series Chart */}
-      <TimeSeriesChart bills={filteredBills} />
 
       {/* Edit Bill Modal */}
       {billToEdit && (
@@ -163,6 +190,13 @@ const App = () => {
           onClose={() => setBillToEdit(null)}
         />
       )}
+
+      {/* Footer */}
+      <footer className="bg-secondary text-white text-center py-3 mt-5 shadow">
+        <p className="mb-0">
+          Created with ❤️ by <strong>@SWAGATIKA</strong>
+        </p>
+      </footer>
     </div>
   );
 };

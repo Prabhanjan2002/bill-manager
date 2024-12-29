@@ -40,3 +40,46 @@
 .read-the-docs {
   color: #888;
 }
+
+body {
+  background-color: #1c1c1c; /* Light black background */
+  color: #f8f9fa;
+  font-family: Arial, sans-serif;
+}
+
+.app-container {
+  padding: 20px;
+}
+
+.card {
+  border-radius: 10px;
+  color: #f8f9fa;
+}
+
+.card.bg-light {
+  background-color: #f8f9fa !important;
+  color: #343a40;
+}
+
+.card.bg-secondary {
+  background-color: #343a40 !important;
+  color: #f8f9fa;
+}
+
+.card.bg-dark {
+  background-color: #1c1c1c !important;
+}
+
+footer {
+  background-color: #2d2d2d;
+}
+
+.btn {
+  border-radius: 5px;
+  transition: all 0.3s ease;
+}
+
+.btn:hover {
+  background-color: #495057;
+  color: #ffffff;
+}

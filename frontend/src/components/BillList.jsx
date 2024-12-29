@@ -1,7 +1,13 @@
 import React, { useState } from "react";
 import axios from "axios";
 
-const BillList = ({ bills, highlightedBills, showHighlightedBills }) => {
+const BillList = ({
+  bills,
+  highlightedBills,
+  showHighlightedBills,
+  onDelete,
+  onEdit,
+}) => {
   const [newBill, setNewBill] = useState({
     description: "",
     category: "",
@@ -23,9 +29,7 @@ const BillList = ({ bills, highlightedBills, showHighlightedBills }) => {
         "http://localhost:5000/api/bills",
         newBill
       );
-      // Assuming the backend returns the updated bill or bill list, you can add it to your state
-      // Here bills are updated with the newly added bill
-      bills.push(response.data);
+      bills.push(response.data); // Update the bills list with the new bill
       setNewBill({ description: "", category: "", amount: "", date: "" }); // Reset form
     } catch (error) {
       console.error("Error adding bill:", error);
@@ -36,8 +40,7 @@ const BillList = ({ bills, highlightedBills, showHighlightedBills }) => {
     <div>
       <h3 className="text-center mb-4">Add New Bill</h3>
 
-      {/* add new bill */}
-
+      {/* Add New Bill Form */}
       <form onSubmit={handleSubmit} className="mb-4">
         <input
           type="text"
@@ -77,7 +80,7 @@ const BillList = ({ bills, highlightedBills, showHighlightedBills }) => {
       </form>
 
       <h3 className="text-center mb-4">Bill List</h3>
-      {/* Existing Bill List */}
+      {/* Bill List */}
       <div className="row">
         {bills.map((bill) => {
           const isHighlighted = highlightedBills.some(
@@ -89,7 +92,7 @@ const BillList = ({ bills, highlightedBills, showHighlightedBills }) => {
               <div
                 className={`card ${
                   isHighlighted && showHighlightedBills
-                    ? "bg-success text-white" // Added background color and text color
+                    ? "bg-success text-white"
                     : ""
                 }`}
               >
@@ -104,6 +107,20 @@ const BillList = ({ bills, highlightedBills, showHighlightedBills }) => {
                   <p className="card-text">
                     <strong>Date:</strong> {bill.date}
                   </p>
+                  <div className="d-flex justify-content-between">
+                    <button
+                      className="btn btn-danger btn-sm"
+                      onClick={() => onDelete(bill._id)}
+                    >
+                      Delete
+                    </button>
+                    <button
+                      className="btn btn-primary btn-sm"
+                      onClick={() => onEdit(bill)}
+                    >
+                      Edit
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>

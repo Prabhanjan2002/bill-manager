@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import BillList from "./components/BillList";
-import BillForm from "./components/AddBillForm";
 import CategoryFilter from "./components/CatagoryFilter";
 import TimeSeriesChart from "./components/TimeSeriesChart"; // Import the Time-Series Chart
+import EditBillModal from "./components/EditBillModel"; // Modal for editing bills
 import { calculateMinimumBills } from "./utils/billUtils"; // Import the utility function
 
 const App = () => {
@@ -12,6 +12,7 @@ const App = () => {
   const [monthlyBudget, setMonthlyBudget] = useState(50000); // Sample monthly budget for Level 2
   const [highlightedBills, setHighlightedBills] = useState([]);
   const [showHighlightedBills, setShowHighlightedBills] = useState(false); // Flag to toggle highlighted bills
+  const [billToEdit, setBillToEdit] = useState(null); // Bill being edited
 
   useEffect(() => {
     const fetchBills = async () => {
@@ -52,6 +53,67 @@ const App = () => {
     setShowHighlightedBills(true); // Show the highlighted bills after calculation
   };
 
+  // Delete a bill
+  const deleteBill = async (billId) => {
+    try {
+      const response = await fetch(
+        `http://localhost:5000/api/bills/${billId}`,
+        {
+          method: "DELETE",
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to delete the bill.");
+      }
+
+      setBills((prevBills) => prevBills.filter((bill) => bill._id !== billId));
+      setFilteredBills((prevFiltered) =>
+        prevFiltered.filter((bill) => bill._id !== billId)
+      );
+    } catch (error) {
+      console.error("Error deleting bill:", error);
+      alert("Failed to delete the bill. Please try again later.");
+    }
+  };
+
+  // Open modal for editing a bill
+  const openEditModal = (bill) => {
+    setBillToEdit(bill);
+  };
+
+  // Edit a bill
+  const editBill = async (updatedBill) => {
+    try {
+      const response = await fetch(
+        `http://localhost:5000/api/bills/${updatedBill._id}`,
+        {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(updatedBill),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to update the bill.");
+      }
+
+      const data = await response.json();
+
+      setBills((prevBills) =>
+        prevBills.map((bill) => (bill._id === updatedBill._id ? data : bill))
+      );
+      setFilteredBills((prevFiltered) =>
+        prevFiltered.map((bill) => (bill._id === updatedBill._id ? data : bill))
+      );
+
+      setBillToEdit(null); // Close the modal after saving
+    } catch (error) {
+      console.error("Error editing bill:", error);
+      alert("Failed to edit the bill. Please try again later.");
+    }
+  };
+
   return (
     <div className="container mt-5">
       <h1 className="text-center mb-4">Bill Manager</h1>
@@ -81,18 +143,26 @@ const App = () => {
         Calculate Minimum Bills to Pay
       </button>
 
-      {/* Bill Form to add new bills */}
-      {/* <BillForm addBill={addBill} /> */}
-
       {/* Bill List with highlighted bills */}
       <BillList
         bills={filteredBills}
         highlightedBills={highlightedBills}
         showHighlightedBills={showHighlightedBills}
+        onDelete={deleteBill}
+        onEdit={openEditModal}
       />
 
       {/* Time-Series Chart */}
       <TimeSeriesChart bills={filteredBills} />
+
+      {/* Edit Bill Modal */}
+      {billToEdit && (
+        <EditBillModal
+          bill={billToEdit}
+          onSave={editBill}
+          onClose={() => setBillToEdit(null)}
+        />
+      )}
     </div>
   );
 };

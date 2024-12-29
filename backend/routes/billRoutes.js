@@ -25,4 +25,35 @@ router.get("/", async (req, res) => {
   }
 });
 
+// DELETE a bill by ID
+router.delete("/:id", async (req, res) => {
+  try {
+    const deletedBill = await Bill.findByIdAndDelete(req.params.id);
+    if (!deletedBill) {
+      return res.status(404).json({ error: "Bill not found" });
+    }
+    res.status(200).json(deletedBill); // Send the deleted bill as the response
+  } catch (error) {
+    console.error("Error deleting bill:", error);
+    res.status(500).json({ message: "Error deleting bill", error });
+  }
+});
+
+// UPDATE a bill by ID
+router.put("/:id", async (req, res) => {
+  try {
+    const updatedBill = await Bill.findByIdAndUpdate(req.params.id, req.body, {
+      new: true,
+      runValidators: true,
+    });
+    if (!updatedBill) {
+      return res.status(404).json({ error: "Bill not found" });
+    }
+    res.status(200).json(updatedBill); // Send the updated bill as the response
+  } catch (error) {
+    console.error("Error updating bill:", error);
+    res.status(500).json({ message: "Error updating bill", error });
+  }
+});
+
 module.exports = router;

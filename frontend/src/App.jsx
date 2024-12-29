@@ -194,7 +194,7 @@ const App = () => {
       {/* Footer */}
       <footer className="bg-secondary text-white text-center py-3 mt-5 shadow">
         <p className="mb-0">
-          Created with ❤️ by <strong>@SWAGATIKA</strong>
+          Created with ❤️ by <strong>@PRABHU</strong>
         </p>
       </footer>
     </div>
